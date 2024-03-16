@@ -90,13 +90,16 @@
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Print</span><span class="params">()</span>		<span class="comment">//Pirnt函数地址将作为我们修改后的返回地址</span></span><br><span class="line">&#123;|</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Hello Pwn!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> buff[<span class="number">10</span>];</span><br><span class="line">    gets(buff);		<span class="comment">//利用gets函数漏洞</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>接下来，我们使用<em>gcc -fno-stack-protector -no-pie -o test test.c</em></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-fno-stack-protector:禁用栈保护(no canary),防止程序检测栈溢出</span><br><span class="line">-no-pie:去掉地址随机化，不然每次程序运行函数地址都会发生改变，我们第一		   次找到Print函数的地址写入exp，执行exp，Print函数地址改			变，之前写入的Print函数地址就无效了</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-fno-stack-protector:禁用栈保护(no canary),防止程序检测栈溢出</span><br><span class="line">-no-pie:去掉地址随机化，不然每次程序运行函数地址都会发生改变，我们第一次找到Print函数的地址写入exp，执行exp，Print函数地址改变，之前写入的Print函数地址就无效了</span><br></pre></td></tr></table></figure>
 
+<p><img src="C:\Users\12781\Desktop\9b2bee5574c148d28fbe7f4496ee165f.png" alt="9b2bee5574c148d28fbe7f4496ee165f"></p>
+<p>以上为我们在输入端输入“AAAAAAAAAAAAAAAAAA”+Print地址(需构造exp)时栈的变换情况rbp为计算机寄存器，它表示栈底指针的地址)</p>
+<p>由上可知，<strong>gets函数可以无限的接收字符串</strong>(直至接受到换行符或EOF时才停止），即使数据超过我们分配的10字节空间，它也无法检测到，因此我们可以通过覆盖函数的返回地址来使函数跳转到任意我们想要跳到的地方</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" data-id="clttjaq4g0001mguy56ofggvb" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" data-id="clttjdxss0001iouyd32fcey3" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -147,7 +150,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2023/12/27/hello-world/" data-id="clttjaq480000mguyfmkzakqn" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2023/12/27/hello-world/" data-id="clttjdxso0000iouy0zn14lit" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
