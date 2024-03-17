@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>A1ic3&#39;s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="栈溢出基础：函数状态主要涉及三个寄存器——esp,ebp,eip.其中esp用来存储函数调用栈的栈顶地址，在压栈和退栈时发生变化。ebp用来存储当前函数状态的基地址，在函数运行时保持不变，可以用来索引确定函数参数或局部变量的位置。eip用来存储即将执行的程序指令的地址，cpu依照eip的存储内容读取指令并执行，eip随之指向相邻的下一条指令，如此反复，程序就得以连续执行指令 下面我们来看看发生函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="A1ic3&#39;s blog">
+<meta property="og:url" content="http://example.com/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/index.html">
+<meta property="og:site_name" content="A1ic3&#39;s blog">
+<meta property="og:description" content="栈溢出基础：函数状态主要涉及三个寄存器——esp,ebp,eip.其中esp用来存储函数调用栈的栈顶地址，在压栈和退栈时发生变化。ebp用来存储当前函数状态的基地址，在函数运行时保持不变，可以用来索引确定函数参数或局部变量的位置。eip用来存储即将执行的程序指令的地址，cpu依照eip的存储内容读取指令并执行，eip随之指向相邻的下一条指令，如此反复，程序就得以连续执行指令 下面我们来看看发生函数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-03-17T03:36:21.472Z">
+<meta property="article:modified_time" content="2024-03-17T03:59:08.806Z">
+<meta property="article:author" content="Alic3">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="A1ic3's blog" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">A1ic3&#39;s blog</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS 订阅"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="搜索"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-栈溢出基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" class="article-date">
+  <time class="dt-published" datetime="2024-03-17T03:36:21.472Z" itemprop="datePublished">2024-03-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="栈溢出基础："><a href="#栈溢出基础：" class="headerlink" title="栈溢出基础："></a>栈溢出基础：</h1><p>函数状态主要涉及三个寄存器——<strong>esp,ebp,eip</strong>.其中esp用来存储函数调用栈的栈顶地址，在压栈和退栈时发生变化。ebp用来存储当前函数状态的基地址，在函数运行时保持不变，可以用来索引确定函数参数或局部变量的位置。eip用来存储即将执行的程序指令的地址，cpu依照eip的存储内容读取指令并执行，eip随之指向相邻的下一条指令，如此反复，程序就得以连续执行指令</p>
+<h2 id="下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数-caller-的状态保存起来，同时创建被调用函数-callee-的状态："><a href="#下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数-caller-的状态保存起来，同时创建被调用函数-callee-的状态：" class="headerlink" title="下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数(caller)的状态保存起来，同时创建被调用函数(callee)的状态："></a>下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数(caller)的状态保存起来，同时创建被调用函数(callee)的状态：</h2><p>1.首先将被调用函数(callee)的参数按照逆序依次压入栈中，如果被调用函数(callee)不需要参数，则没有这一步骤。这些参数仍会保存在调用函数(caller)的函数状态内，之后压入栈内的数据都会作为被调用函数(callee)的函数状态来保存。</p>
+<p>2.然后将调用函数(caller)进行调用之后的下一条指令地址作为返回地址压入栈内。这样调用函数(caller)的eip(指令)信息得以保存</p>
+<p>3.在压栈过程中，esp寄存器的值不断减小(对应于栈从内存高地址向低地址生长)。压入栈内的数据包括调用参数，返回地址，调用函数的基地址，以及局部变量，其中调用函数以外的数据共同构成了被调用函数(callee)的状态。在发生调用时，程序还会将被调用函数(callee)的指令地址存到eip寄存器内，这样程序就可以依次执行被调用函数的指令了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">变化的核心任务是丢弃被调用函数(callee)的状态，并将栈顶回复为调用函数(caller)的状态</span><br><span class="line"></span><br><span class="line">首先被调用函数的局部变量会从栈内直接弹出，栈顶会指向被调用函数(callee)的基地址</span><br><span class="line"></span><br><span class="line">再将当前的ebp寄存器的值(也就是调用函数的基地址)压入栈内，并将ebp寄存器的值更新为当前栈顶的地址。这样调用函数(caller)的ebp(基地址)信息得以保存。同时，ebp被更新为被调用函数(callee)的基地址</span><br><span class="line"></span><br><span class="line">再之后是将被调用函数(callee)的局部变量等数据压入栈内</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" data-id="cltuzpv9800025ouya6si4qrz" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2024/03/">三月 2024</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/12/">十二月 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2023/12/27/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2024 Alic3<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

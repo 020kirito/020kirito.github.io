@@ -69,6 +69,40 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-栈溢出基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" class="article-date">
+  <time class="dt-published" datetime="2024-03-17T03:36:21.472Z" itemprop="datePublished">2024-03-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="栈溢出基础："><a href="#栈溢出基础：" class="headerlink" title="栈溢出基础："></a>栈溢出基础：</h1><p>函数状态主要涉及三个寄存器——<strong>esp,ebp,eip</strong>.其中esp用来存储函数调用栈的栈顶地址，在压栈和退栈时发生变化。ebp用来存储当前函数状态的基地址，在函数运行时保持不变，可以用来索引确定函数参数或局部变量的位置。eip用来存储即将执行的程序指令的地址，cpu依照eip的存储内容读取指令并执行，eip随之指向相邻的下一条指令，如此反复，程序就得以连续执行指令</p>
+<h2 id="下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数-caller-的状态保存起来，同时创建被调用函数-callee-的状态："><a href="#下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数-caller-的状态保存起来，同时创建被调用函数-callee-的状态：" class="headerlink" title="下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数(caller)的状态保存起来，同时创建被调用函数(callee)的状态："></a>下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数(caller)的状态保存起来，同时创建被调用函数(callee)的状态：</h2><p>1.首先将被调用函数(callee)的参数按照逆序依次压入栈中，如果被调用函数(callee)不需要参数，则没有这一步骤。这些参数仍会保存在调用函数(caller)的函数状态内，之后压入栈内的数据都会作为被调用函数(callee)的函数状态来保存。</p>
+<p>2.然后将调用函数(caller)进行调用之后的下一条指令地址作为返回地址压入栈内。这样调用函数(caller)的eip(指令)信息得以保存</p>
+<p>3.在压栈过程中，esp寄存器的值不断减小(对应于栈从内存高地址向低地址生长)。压入栈内的数据包括调用参数，返回地址，调用函数的基地址，以及局部变量，其中调用函数以外的数据共同构成了被调用函数(callee)的状态。在发生调用时，程序还会将被调用函数(callee)的指令地址存到eip寄存器内，这样程序就可以依次执行被调用函数的指令了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">变化的核心任务是丢弃被调用函数(callee)的状态，并将栈顶回复为调用函数(caller)的状态</span><br><span class="line"></span><br><span class="line">首先被调用函数的局部变量会从栈内直接弹出，栈顶会指向被调用函数(callee)的基地址</span><br><span class="line"></span><br><span class="line">再将当前的ebp寄存器的值(也就是调用函数的基地址)压入栈内，并将ebp寄存器的值更新为当前栈顶的地址。这样调用函数(caller)的ebp(基地址)信息得以保存。同时，ebp被更新为被调用函数(callee)的基地址</span><br><span class="line"></span><br><span class="line">再之后是将被调用函数(callee)的局部变量等数据压入栈内</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" data-id="cltuzpv9800025ouya6si4qrz" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-pwn栈溢出" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" class="article-date">
@@ -82,7 +116,7 @@
     <div class="e-content article-entry" itemprop="articleBody">
       
         <h1 id="栈溢出篇1"><a href="#栈溢出篇1" class="headerlink" title="栈溢出篇1"></a><em>栈溢出篇1</em></h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1.定义:"></a>1.定义:</h2><p>​	栈溢出是<em><strong>缓冲区</strong></em>溢出的一种，当缓冲区数据大于缓冲区大小时，缓冲区以外的有用数据就会被多出来的缓冲区数据覆盖改写，从而可能导致程序崩溃</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">缓冲区：程序在运行过程中，为了临时存取数据的需要，一般都要分配一些内存空间，通常称这些空间为缓冲区</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">缓冲区：程序在运行过程中，为了临时存取数据的需要，一般都要分配一些内存空间，通常称这些空间为缓冲区</span><br><span class="line"></span><br><span class="line">--栈溢出(Stack overflow)</span><br><span class="line">--堆溢出(Heap overflow)</span><br><span class="line">--Data段溢出(比如bss段，比较少见)</span><br></pre></td></tr></table></figure>
 
 <h2 id="2-原理："><a href="#2-原理：" class="headerlink" title="2.原理："></a>2.原理：</h2><p>​	栈溢出漏洞在ctf题中常被用来<strong>覆盖程序的返回地址</strong>，以达到某函数返回(return)时，不再是返回原先的返回函数地址，而是返回到我们为其指定地址的地方。</p>
 <p>举个栗子，解释覆盖数据原理：</p>
@@ -99,7 +133,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" data-id="clttjf3hd0001ewuycrbzhal0" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" data-id="cltuzpv9600015ouy2p4tfgp7" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -150,7 +184,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2023/12/27/hello-world/" data-id="clttjf3h90000ewuy19te3y24" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2023/12/27/hello-world/" data-id="cltuzpv9100005ouyh65z9f3n" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -191,6 +225,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/">(no title)</a>
+          </li>
         
           <li>
             <a href="/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/">(no title)</a>
