@@ -6,13 +6,21 @@
   
   <title>A1ic3&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta property="og:type" content="website">
+  <meta name="description" content="C语言函数调用栈(一)程序的执行过程可以看作连续的函数调用。当一个函数执行完毕时，程序要回到调用指令的下一条指令(紧接call指令)处继续执行。函数调用过程通常使用堆栈实现，每个用户态进程对应一个调用栈结构(call stack)。编译器使用堆栈传递函数参数，保存返回地址，临时保存寄存器原有值(即函数调用的上下文)以备恢复以及储存本地局部变量。 1.寄存器分配​	寄存器时处理器加工数据或运行程序的">
+<meta property="og:type" content="article">
 <meta property="og:title" content="A1ic3&#39;s blog">
-<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:url" content="http://example.com/2024/04/09/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88%E5%9F%BA%E7%A1%80/index.html">
 <meta property="og:site_name" content="A1ic3&#39;s blog">
+<meta property="og:description" content="C语言函数调用栈(一)程序的执行过程可以看作连续的函数调用。当一个函数执行完毕时，程序要回到调用指令的下一条指令(紧接call指令)处继续执行。函数调用过程通常使用堆栈实现，每个用户态进程对应一个调用栈结构(call stack)。编译器使用堆栈传递函数参数，保存返回地址，临时保存寄存器原有值(即函数调用的上下文)以备恢复以及储存本地局部变量。 1.寄存器分配​	寄存器时处理器加工数据或运行程序的">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://images0.cnblogs.com/i/569008/201405/271644419475745.jpg">
+<meta property="og:image" content="https://images0.cnblogs.com/i/569008/201405/271650059007975.jpg">
+<meta property="og:image" content="https://images0.cnblogs.com/i/569008/201405/271656343069114.jpg">
+<meta property="article:published_time" content="2024-04-09T12:33:59.568Z">
+<meta property="article:modified_time" content="2024-04-09T12:33:03.533Z">
 <meta property="article:author" content="Alic3">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://images0.cnblogs.com/i/569008/201405/271644419475745.jpg">
   
     <link rel="alternate" href="/atom.xml" title="A1ic3's blog" type="application/atom+xml">
   
@@ -67,9 +75,7 @@
 </header>
 
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-函数调用栈基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-函数调用栈基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2024/04/09/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88%E5%9F%BA%E7%A1%80/" class="article-date">
   <time class="dt-published" datetime="2024-04-09T12:33:59.568Z" itemprop="datePublished">2024-04-09</time>
@@ -161,138 +167,19 @@
     </footer>
   </div>
   
-</article>
-
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-栈溢出基础" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" class="article-date">
-  <time class="dt-published" datetime="2024-03-17T03:36:21.472Z" itemprop="datePublished">2024-03-17</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="栈溢出基础："><a href="#栈溢出基础：" class="headerlink" title="栈溢出基础："></a>栈溢出基础：</h1><p>函数状态主要涉及三个寄存器——<strong>esp,ebp,eip</strong>.其中esp用来存储函数调用栈的栈顶地址，在压栈和退栈时发生变化。ebp用来存储当前函数状态的基地址，在函数运行时保持不变，可以用来索引确定函数参数或局部变量的位置。eip用来存储即将执行的程序指令的地址，cpu依照eip的存储内容读取指令并执行，eip随之指向相邻的下一条指令，如此反复，程序就得以连续执行指令</p>
-<h2 id="下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数-caller-的状态保存起来，同时创建被调用函数-callee-的状态："><a href="#下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数-caller-的状态保存起来，同时创建被调用函数-callee-的状态：" class="headerlink" title="下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数(caller)的状态保存起来，同时创建被调用函数(callee)的状态："></a>下面我们来看看发生函数调用时，栈顶函数状态以及上述寄存器的变化。变化的核心任务是将调用函数(caller)的状态保存起来，同时创建被调用函数(callee)的状态：</h2><p>1.首先将被调用函数(callee)的参数按照逆序依次压入栈中，如果被调用函数(callee)不需要参数，则没有这一步骤。这些参数仍会保存在调用函数(caller)的函数状态内，之后压入栈内的数据都会作为被调用函数(callee)的函数状态来保存。</p>
-<p>2.然后将调用函数(caller)进行调用之后的下一条指令地址作为返回地址压入栈内。这样调用函数(caller)的eip(指令)信息得以保存</p>
-<p>3.在压栈过程中，esp寄存器的值不断减小(对应于栈从内存高地址向低地址生长)。压入栈内的数据包括调用参数，返回地址，调用函数的基地址，以及局部变量，其中调用函数以外的数据共同构成了被调用函数(callee)的状态。在发生调用时，程序还会将被调用函数(callee)的指令地址存到eip寄存器内，这样程序就可以依次执行被调用函数的指令了</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">变化的核心任务是丢弃被调用函数(callee)的状态，并将栈顶回复为调用函数(caller)的状态</span><br><span class="line"></span><br><span class="line">首先被调用函数的局部变量会从栈内直接弹出，栈顶会指向被调用函数(callee)的基地址</span><br><span class="line"></span><br><span class="line">再将当前的ebp寄存器的值(也就是调用函数的基地址)压入栈内，并将ebp寄存器的值更新为当前栈顶的地址。这样调用函数(caller)的ebp(基地址)信息得以保存。同时，ebp被更新为被调用函数(callee)的基地址</span><br><span class="line"></span><br><span class="line">再之后是将被调用函数(callee)的局部变量等数据压入栈内</span><br></pre></td></tr></table></figure>
+  
+    <a href="/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
 
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2024/03/17/%E6%A0%88%E6%BA%A2%E5%87%BA%E5%9F%BA%E7%A1%80/" data-id="clusd5yoy0003gguyenuwg09t" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-
-  
-    <article id="post-pwn栈溢出" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" class="article-date">
-  <time class="dt-published" datetime="2024-03-16T02:21:40.732Z" itemprop="datePublished">2024-03-16</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="栈溢出篇1"><a href="#栈溢出篇1" class="headerlink" title="栈溢出篇1"></a><em>栈溢出篇1</em></h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1.定义:"></a>1.定义:</h2><p>​	栈溢出是<em><strong>缓冲区</strong></em>溢出的一种，当缓冲区数据大于缓冲区大小时，缓冲区以外的有用数据就会被多出来的缓冲区数据覆盖改写，从而可能导致程序崩溃</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">缓冲区：程序在运行过程中，为了临时存取数据的需要，一般都要分配一些内存空间，通常称这些空间为缓冲区</span><br><span class="line"></span><br><span class="line">--栈溢出(Stack overflow)</span><br><span class="line">--堆溢出(Heap overflow)</span><br><span class="line">--Data段溢出(比如bss段，比较少见)</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-原理："><a href="#2-原理：" class="headerlink" title="2.原理："></a>2.原理：</h2><p>​	栈溢出漏洞在ctf题中常被用来<strong>覆盖程序的返回地址</strong>，以达到某函数返回(return)时，不再是返回原先的返回函数地址，而是返回到我们为其指定地址的地方。</p>
-<p>举个栗子，解释覆盖数据原理：</p>
-<p><strong>C源码</strong>test.c</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span><span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">Print</span><span class="params">()</span>		<span class="comment">//Pirnt函数地址将作为我们修改后的返回地址</span></span><br><span class="line">&#123;|</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Hello Pwn!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="type">char</span> buff[<span class="number">10</span>];</span><br><span class="line">    gets(buff);		<span class="comment">//利用gets函数漏洞</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>接下来，我们使用<em>gcc -fno-stack-protector -no-pie -o test test.c</em></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-fno-stack-protector:禁用栈保护(no canary),防止程序检测栈溢出</span><br><span class="line">-no-pie:去掉地址随机化，不然每次程序运行函数地址都会发生改变，我们第一次找到Print函数的地址写入exp，执行exp，Print函数地址改变，之前写入的Print函数地址就无效了</span><br></pre></td></tr></table></figure>
-
-<p><img src="C:\Users\12781\Desktop\9b2bee5574c148d28fbe7f4496ee165f.png" alt="9b2bee5574c148d28fbe7f4496ee165f"></p>
-<p>以上为我们在输入端输入“AAAAAAAAAAAAAAAAAA”+Print地址(需构造exp)时栈的变换情况rbp为计算机寄存器，它表示栈底指针的地址)</p>
-<p>由上可知，<strong>gets函数可以无限的接收字符串</strong>(直至接受到换行符或EOF时才停止），即使数据超过我们分配的10字节空间，它也无法检测到，因此我们可以通过覆盖函数的返回地址来使函数跳转到任意我们想要跳到的地方</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2024/03/16/pwn%E6%A0%88%E6%BA%A2%E5%87%BA/" data-id="clusd5yox0002gguye28nd0xu" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2023/12/27/hello-world/" class="article-date">
-  <time class="dt-published" datetime="2023-12-27T15:28:11.808Z" itemprop="datePublished">2023-12-27</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2023/12/27/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2023/12/27/hello-world/" data-id="clusd5yoi0000gguyeeba6xv2" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
 </section>
