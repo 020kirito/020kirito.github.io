@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://images0.cnblogs.com/i/569008/201405/271650059007975.jpg">
 <meta property="og:image" content="https://images0.cnblogs.com/i/569008/201405/271656343069114.jpg">
 <meta property="article:published_time" content="2024-04-09T12:33:59.568Z">
-<meta property="article:modified_time" content="2024-04-09T12:33:03.533Z">
+<meta property="article:modified_time" content="2024-04-09T12:41:42.642Z">
 <meta property="article:author" content="Alic3">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://images0.cnblogs.com/i/569008/201405/271644419475745.jpg">
@@ -89,7 +89,7 @@
       
         <h1 id="C语言函数调用栈-一"><a href="#C语言函数调用栈-一" class="headerlink" title="C语言函数调用栈(一)"></a>C语言函数调用栈(一)</h1><p>程序的执行过程可以看作连续的函数调用。当一个函数执行完毕时，程序要回到调用指令的下一条指令(紧接call指令)处继续执行。函数调用过程通常使用堆栈实现，每个用户态进程对应一个调用栈结构(call stack)。编译器使用堆栈传递函数参数，保存返回地址，临时保存寄存器原有值(即函数调用的上下文)以备恢复以及储存本地局部变量。</p>
 <h2 id="1-寄存器分配"><a href="#1-寄存器分配" class="headerlink" title="1.寄存器分配"></a>1.寄存器分配</h2><p>​	寄存器时处理器加工数据或运行程序的重要载体，用于存放程序执行中用到的数据和指令。因此函数调用栈的实现与处理器寄存器组密切相关。</p>
-<p>———————————————————————</p>
+<p>————————————————————————————————————————————————————————————</p>
 <p>​	对于寄存器%eax，%ebx，%ecx，%edx各自可作为两个独立的16位寄存器使用，而低16位寄存器还可继续分为两个独立的8位寄存器使用。在汇编语言层面，这组通用寄存器以%e(AT&amp;T语法)或直接以e(Intel语法)开头来引用，例如mov $5,%eax或mov eax,5表示将<u><strong>立即数</strong></u>5赋值给寄存器%eax。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">立即数：通常指在立即寻访方式指令中给出的数，该数值紧跟在操作码之后。</span><br></pre></td></tr></table></figure>
 
@@ -160,7 +160,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2024/04/09/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88%E5%9F%BA%E7%A1%80/" data-id="clusd9v200003ysuy4ydd45ra" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2024/04/09/%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%E6%A0%88%E5%9F%BA%E7%A1%80/" data-id="clusdflgk0002esuy9wjef8nw" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
